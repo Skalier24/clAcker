@@ -22,6 +22,14 @@ namespace clAcker
         int WYSI;
         int IsBughunter;
 
+        int TotalStrClick = 0;
+        int QUp1Str;
+        int QUp2Str;
+
+        int QUp1 = 0; //кол-во купленных апалок 1 гр.
+        int QUp2 = 0;  //кол-во купленных апалок 2 грейда
+        string l22T;
+        string l23T;
 
         Button NowActiveBut;
 
@@ -51,6 +59,8 @@ namespace clAcker
                     writer.WriteLine("Endgame:0");
                     writer.WriteLine("WYSI:0");
                     writer.WriteLine("Hacker:0");
+                    writer.WriteLine("QUp1:0");
+                    writer.WriteLine("QUp2:0");
                     writer.Flush();
                 }
             }
@@ -87,12 +97,14 @@ namespace clAcker
             keys.TryGetValue("Bronze", out IsBronze);
             keys.TryGetValue("Gold", out IsGold);
             keys.TryGetValue("Endgame", out IsEG);
-            keys.TryGetValue("WYSI", out WYSI);
+            keys.TryGetValue("WYSI", out WYSI); // запись значений из файла в переменные
             keys.TryGetValue("Hacker", out IsBughunter);
+            keys.TryGetValue("QUp1", out QUp1); 
+            keys.TryGetValue("QUp2", out QUp2);
 
             label2.Text = SavedClicks.ToString();
-            NowActiveBut = button1;
-            NowActiveBut.Enabled = false;
+            NowActiveBut = button1; //назначение первого скина
+            NowActiveBut.Enabled = false; // отключение для баланса *вселенной*
 
             if (IsBronze == 1) button4.Enabled = true; else button4.Enabled = false;
             if (IsGold == 1) button3.Enabled = true; else button3.Enabled = false;
@@ -119,13 +131,15 @@ namespace clAcker
         {
             using (StreamWriter writer = new StreamWriter("Stats.txt", false))
             {
-                writer.WriteLine($"Clicks:{tempClickers}");
-                writer.WriteLine($"Kiwi:1");
-                writer.WriteLine($"Bronze:{IsBronze}");
-                writer.WriteLine($"Gold:{IsGold}");
-                writer.WriteLine($"Endgame:{IsEG}");
-                writer.WriteLine($"WYSI:{WYSI}");
-                writer.WriteLine($"Hacker:{IsBughunter}");
+                writer.WriteLine("Clicks:{0}", tempClickers);
+                writer.WriteLine("Kiwi:1");
+                writer.WriteLine("Bronze:{0}", IsBronze);
+                writer.WriteLine("Gold:{0}", IsGold);
+                writer.WriteLine("Endgame:{0}", IsEG);
+                writer.WriteLine("WYSI:{0}", WYSI); //записывает в файл все значения из переменных 
+                writer.WriteLine("Hacker:{0}", IsBughunter);
+                writer.WriteLine("QUp1:{0}", QUp1);
+                writer.WriteLine("QUp2:{0}", QUp2);
                 writer.Flush();
             }
         }
@@ -135,6 +149,17 @@ namespace clAcker
         {
             pictureBox1.Size = new Size(250, 250);
             pictureBox1.Location = new Point(pictureBox1.Location.X + 50, pictureBox1.Location.Y + 50);
+
+            QUp1Str = QUp1 * 5; //итоговая сила усилки 1 гр.
+            QUp2Str = QUp2 * 150; //итоговая сила усилки 2 гр.
+
+            TotalStrClick = 1 + QUp1Str + QUp2Str; //вычисление конечной силы крика
+
+            if (tempClickers >= 100) button7.Enabled = true;
+            else button7.Enabled = false;
+
+            if (tempClickers >= 2000) button8.Enabled = true;
+            else button8.Enabled = false;
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -144,30 +169,31 @@ namespace clAcker
 
             if (tempClickers % 10 == 0) { DecWriter(); } //при делении остаток 0, то будет сохранение в файл
 
-            tempClickers++;
+           
+            tempClickers+=TotalStrClick; //теперь клики начисляются с влиянием силы клика
             label2.Text = tempClickers.ToString();
             pictureBox1.Size = new Size(300, 300);
-            pictureBox1.Location = new Point(pictureBox1.Location.X - 50, pictureBox1.Location.Y - 50);
+            pictureBox1.Location = new Point(pictureBox1.Location.X - 50, pictureBox1.Location.Y - 50); //изменение размеров picBox
 
-            if (tempClickers == SkinOpener["Bronze"] && IsBronze == 0)
+            if (tempClickers >= SkinOpener["Bronze"] && IsBronze == 0) // открытие скина: бронза (и других)
             {
                 IsBronze = 1;
                 button4.Enabled = true;
                 MessageBox.Show("Бронза разблокирована!");
             }
-            if (tempClickers == SkinOpener["Gold"] && IsGold == 0)
+            if (tempClickers >= SkinOpener["Gold"] && IsGold == 0)
             {
                 IsGold = 1;
                 button3.Enabled = true;
                 MessageBox.Show("Золото разблокировано");
             }
-            if (tempClickers == SkinOpener["Endgame"] && IsEG == 0)
+            if (tempClickers >= SkinOpener["Endgame"] && IsEG == 0)
             {
                 IsEG = 1;
                 button6.Enabled = true;
                 MessageBox.Show("Эндгейм достигнут.");
             }
-            if (tempClickers == SkinOpener["WYSI"] && WYSI == 0)
+            if (tempClickers >= SkinOpener["WYSI"] && WYSI == 0)
             {
                 WYSI = 1;
                 button2.Enabled = true;
@@ -180,7 +206,7 @@ namespace clAcker
                 MessageBox.Show("Поздравляю, вы Хуцкер!");
             }
 
-            if (pictureBox1.Location.Y >= 300) pictureBox1.Location = new Point(12, 61);
+            if (pictureBox1.Location.Y >= 300) pictureBox1.Location = new Point(12, 61); //возврат PicBox после фичи
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -192,6 +218,18 @@ namespace clAcker
             SkinOpener.Add("Endgame", 10000); // для кликов
             SkinOpener.Add("WYSI", 727);
             SkinOpener.Add("Hacker", 300); // для Y пиктюрбокса
+
+            l22T = $"Количество: {QUp1}"; //загрузка кол-ва апов 1 гр.
+            label22.Text = l22T;
+
+            l23T = $"Количество: {QUp2}";
+            label23.Text = l23T;
+
+            if (tempClickers >= 100) button7.Enabled = true; //загрузка кнопок исходя из кол-ва кликов
+            else button7.Enabled = false;
+
+            if (tempClickers >= 2000) button8.Enabled = true;
+            else button8.Enabled = false;
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -222,6 +260,28 @@ namespace clAcker
         private void button3_Click(object sender, EventArgs e)
         {
             ChangeSkin(button3, Properties.Resources.Gold); //золото
+        }
+
+        private void button7_Click(object sender, EventArgs e) //добавление апов 1 грейда
+        {
+            QUp1++;
+            tempClickers -= 100;
+            label2.Text = tempClickers.ToString();
+            l22T = $"Количество: {QUp1}"; //обновление кол-ва апов на форме
+            label22.Text = l22T;
+
+            if (tempClickers < 100) button7.Enabled = false; //выкл кнопки если не хватает
+        }
+
+        private void button8_Click(object sender, EventArgs e) //все то же для 2 гр.
+        {
+            QUp2++;
+            tempClickers -= 2000;
+            label2.Text = tempClickers.ToString();
+            l23T = $"Количество: {QUp2}";
+            label23.Text = l23T;
+
+            if (tempClickers < 2000) button8.Enabled = false;
         }
     }
 }

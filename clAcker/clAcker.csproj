@@ -99,6 +99,8 @@
     <None Include="src\Kiwi_Clickjpg.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Up2.png" />
+    <None Include="src\Up1.png" />
     <None Include="src\WYSI.png" />
     <None Include="src\Hacker.jpg" />
     <None Include="src\Gold.png" />
