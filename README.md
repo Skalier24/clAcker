@@ -17,4 +17,3 @@
 - .NET SDK 8.0
 - .NET Framework 4.7.2
 - Visual Studio версии 17.13.1 или новее
-
